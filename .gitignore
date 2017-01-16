@@ -1,5 +1,10 @@
 # Input Data
 *.csv
+csv/
+csv/
+process_out/
+out/
+sav/
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
