@@ -1,12 +1,21 @@
 import csv
 from savReaderWriter import SavReader
 
+# Mortality Dataset
+input_uuid_col = 0
 input_uuid_filename = './csv/ids_to_find.csv'
-savFilename = './sav/all_patient_visits_2016.sav'
-out_filename = './out/all_patient_visits_2016_filtered.csv'
 
-ids_to_find = {}
+# Filter Mappings { input_sav => filtered_output.csv }
+uuid_col = 2
+filter_file_map = {
+    './sav/all_past_medical_history_2016.sav': './out/all_past_medical_history_2016_filtered.csv',
+    './sav/all_diagnoses_2016.sav': './out/all_diagnoses_2016_filtered.csv'
+}
+# savFilename = './sav/all_past_medical_history_2016.sav'
+# out_filename = './out/all_past_medical_history_2016_filtered.csv'
 
+uuids_to_filter = {}
+print('Loading Filter UUIDs from {} ...'.format(input_uuid_filename))
 with open(input_uuid_filename,
           mode='rt',
           errors='strict',
@@ -17,45 +26,42 @@ with open(input_uuid_filename,
                         strict=True)
     for row in reader:
         if len(row) >= 1:
-            uuid = str(row[0]).casefold()
-            ids_to_find[uuid] = 0
-
-# print('ids to find \n {}'.format(ids_to_find))
-
-with SavReader(savFilename) as reader:
-    with open(out_filename,
-              mode='wt',
-              errors='strict',
-              encoding='utf8') as outFile:
-        outFilerWriter = csv.writer(outFile,
-                                    delimiter=',',
-                                    quotechar='|',
-                                    quoting=csv.QUOTE_MINIMAL)
-        header = [str(f, 'utf8').casefold() for f in reader.header]
-        outFilerWriter.writerow(header)
-        for row in reader:
-            uuid = str(row[2], 'utf-8').casefold()
-            if uuid in ids_to_find:
-                ids_to_find[uuid] = 1
-                row = [str(f, 'utf8') if type(f) is bytes else f for f in row]
-                outFilerWriter.writerow(row)
-
-# Print out numbers of how many were found and not found
-num_total = 0
-num_found = 0
-num_not_found = 0
-not_found_ids = []
-for (id, found) in ids_to_find.items():
-    if found:
-        num_found += 1
-    else:
-        num_not_found += 1
-        not_found_ids.append(id)
-    num_total += 1
+            uuid = str(row[input_uuid_col]).casefold()
+            uuids_to_filter[uuid] = False
 
 
-print('Results output - input_uuid_filename: {}, savFilename: {}, out_filename: {}'
-      .format(input_uuid_filename, savFilename, out_filename))
-print('Total input ids {} : found {}, not found {}'
-      .format(num_total, num_found, num_not_found))
-print('Ids not found : >> \n  {} \n >>'.format(not_found_ids))
+for (inputSavPath, outputCsvPath) in filter_file_map.items():
+    print('Filtering {} to {} ...'.format(inputSavPath, outputCsvPath))
+
+    # Reset the stats collector
+    for uuid in uuids_to_filter.keys():
+        uuids_to_filter[uuid] = False
+
+    with SavReader(inputSavPath) as savData:
+        with open(outputCsvPath,
+                  mode='wt',
+                  errors='strict',
+                  encoding='utf8') as outFile:
+            outFilerWriter = csv.writer(outFile,
+                                        delimiter=',',
+                                        quotechar='|',
+                                        quoting=csv.QUOTE_MINIMAL)
+            header = [str(field, 'utf8').casefold()
+                      for field in savData.header]
+            outFilerWriter.writerow(header)
+
+            for row in savData:
+                uuid = str(row[uuid_col], 'utf-8').casefold()
+                if uuid in uuids_to_filter:
+                    uuids_to_filter[uuid] = True
+                    parsed_row = [str(field, 'utf8')
+                                  if type(field) is bytes else field
+                                  for field in row]
+                    outFilerWriter.writerow(parsed_row)
+
+    print('Filtering statistics --- ')
+    print('Total UUIDs to Filter = {}'.format(len(uuids_to_filter)))
+    print('UUIDs filtered = {}'.format(sum(uuids_to_filter.values())))
+    # print('Ids not found >> [ {} ]'
+    #       .format(','.join(uuid for (uuid, found) in uuids_to_filter.items()
+    #                        if found)))
