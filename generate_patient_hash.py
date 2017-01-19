@@ -22,10 +22,7 @@ with open(input_uuid_file,
           mode='rt',
           errors='strict',
           encoding='utf-8') as uuid_data:
-    reader = csv.reader(uuid_data,
-                        delimiter=',',
-                        quoting=csv.QUOTE_NONE,
-                        strict=True)
+    reader = csv.reader(uuid_data, strict=True)
     headerRow = next(reader)
 
     for row in reader:
@@ -51,10 +48,7 @@ with open(output_uuid_pid_file,
           mode='wt',
           errors='strict',
           encoding='utf-8') as outputFile:
-    writer = csv.writer(outputFile,
-                        delimiter=',',
-                        quoting=csv.QUOTE_MINIMAL,
-                        strict=True)
+    writer = csv.writer(outputFile, strict=True)
     writer.writerow(['graphite_uuid', 'hashed_pid', 'pid'])
 
     for (pid, uuids) in pid_to_uuids_map.items():
