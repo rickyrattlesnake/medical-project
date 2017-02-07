@@ -8,7 +8,7 @@ first_name_col = 2
 dob_col = 3
 
 input_uuid_file = './csv/data_mortality_orig.csv'
-output_uuid_pid_file = './csv/uuid_to_unique_pid_map.csv'
+output_uuid_pid_file = './csv/uuid_pid_map.csv'
 # PatientID key is defined as (lastname, firstname, dob)
 # as a concantenated string
 # PatientID Hash is a non-reversible hash of the PatientID key

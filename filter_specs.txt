@@ -1,0 +1,70 @@
+General indicators of deteriorating health:
+-       BMI <19
+
+
+cancer (yes/no)
+    Overall Exclusion:
+        ^\s*?,\bscreen\b,\bscreening\b
+
+    \bmalig*\b NOT h/t,lentigo,compression,pre,no
+    \b(cancer|cancerous)\b NOT skin,fear,worried,fhx,family history,not cancerous,husband,FOBT - negative,
+    \bca\b NOT (coronary|oxalate|review)
+    \bcarc*\b NOT basal
+    \badenoca*\b
+    \btumo*\b NOT adrenal,pituitary,proclatin,.benign,
+
+metastatic_disease (Yes/No)
+    Overall Exclusion:
+        ^\s*?
+
+    \bmetas* NOT
+
+
+chemotherapy_treatment (Yes/No)
+    \bchemo*
+
+radiotherapy (Yes/No)
+    \bradiot*\b NOT bcc
+    \bradiation*\b NOT bcc
+
+
+dementia (yes/no)
+    Overall:
+        ?,early,mild,pseudo,pseudo-,request
+
+    \balz*\b
+    \bdemen*\b
+
+chronic_heart_failure (yes/no)
+    Overall:
+        ?, mild
+
+    \bchf\b
+    \bheart fail*\b
+    \bcardiac fail*\b) NOT no
+
+copd (yes/no)
+    overall:
+        ?
+    \bcopd\b
+    (\b(emphysema|airways limitation|chronic obstructive pulmonary disease)|\bcal\b) NOT spur
+
+
+chronic_renal_failure (yes/no)
+    \b(kidney|renal) (failure|disease) NOT acute
+
+stage_4_or_5_renal_failure
+    is renal AND \b(end stage|stage 4| stage 5|stage iv|stage v)
+
+dialysis
+    \b(dialysis)
+
+chronic_liver_failure
+    Overall:
+     ?
+
+    \b(liver|hepatic) (failure|disease)
+    \b(ascites|cirrh|encephalopathy|variceal) NOT empathic, mild, biliary
+
+
+[]
