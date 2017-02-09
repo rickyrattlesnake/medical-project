@@ -1,15 +1,6 @@
 import re
 
 
-# if diag_str == '? ? Squamous cell carcinoma':
-#     print(diag_str)
-#     print(inclusion_re.pattern)
-#     print(exclusion_re.pattern)
-#     print(overall_exclusion_re.pattern)
-#     print(inclusion_re.search(diag_str))
-#     print(exclusion_re.search(diag_str))
-#     print(overall_exclusion_re.search(diag_str))
-
 def word_boundary_pattern_wrap(pattern_list):
     pattern_str = r'\b(' + '|'.join(pattern_list) + r')\b'
     return re.compile(pattern_str, re.IGNORECASE)
@@ -63,8 +54,8 @@ def is_cancer(diag_str):
     if not overall_exclusion_re.search(diag_str):
         if (inclusion_re.search(diag_str) and
                 not exclusion_re.search(diag_str)):
-            return True
-    return False
+            return 1
+    return 0
 
 
 def is_metastatic_disease(diag_str):
@@ -79,8 +70,8 @@ def is_metastatic_disease(diag_str):
 
     if not overall_exclusion_re.search(diag_str):
         if inclusion_re.search(diag_str):
-            return True
-    return False
+            return 1
+    return 0
 
 
 def is_chemotherapy(diag_str):
@@ -89,8 +80,8 @@ def is_chemotherapy(diag_str):
     ])
 
     if inclusion_re.search(diag_str):
-        return True
-    return False
+        return 1
+    return 0
 
 
 def is_radiotherapy(diag_str):
@@ -105,8 +96,8 @@ def is_radiotherapy(diag_str):
 
     if (inclusion_re.search(diag_str) and
             not exclusion_re.search(diag_str)):
-        return True
-    return False
+        return 1
+    return 0
 
 
 def is_dementia(diag_str):
@@ -126,8 +117,8 @@ def is_dementia(diag_str):
 
     if not overall_exclusion_re.search(diag_str):
         if (inclusion_re.search(diag_str)):
-            return True
-    return False
+            return 1
+    return 0
 
 
 def is_chronic_heart_failure(diag_str):
@@ -149,8 +140,8 @@ def is_chronic_heart_failure(diag_str):
     if not overall_exclusion_re.search(diag_str):
         if (inclusion_re.search(diag_str) and
                 not exclusion_re.search(diag_str)):
-            return True
-    return False
+            return 1
+    return 0
 
 
 def is_copd(diag_str):
@@ -173,8 +164,8 @@ def is_copd(diag_str):
     if not overall_exclusion_re.search(diag_str):
         if (inclusion_re.search(diag_str) and
                 not exclusion_re.search(diag_str)):
-            return True
-    return False
+            return 1
+    return 0
 
 
 def is_chronic_renal_failure(diag_str):
@@ -189,8 +180,8 @@ def is_chronic_renal_failure(diag_str):
 
     if (inclusion_re.search(diag_str) and
             not exclusion_re.search(diag_str)):
-        return True
-    return False
+        return 1
+    return 0
 
 
 def is_stage_4_or_5_renal_failure(diag_str):
@@ -204,8 +195,8 @@ def is_stage_4_or_5_renal_failure(diag_str):
 
     if (is_chronic_renal_failure(diag_str) and
             inclusion_re.search(diag_str)):
-        return True
-    return False
+        return 1
+    return 0
 
 
 def is_dialysis(diag_str):
@@ -215,8 +206,8 @@ def is_dialysis(diag_str):
 
     if (is_chronic_renal_failure(diag_str) and
             inclusion_re.search(diag_str)):
-        return True
-    return False
+        return 1
+    return 0
 
 
 def is_chronic_liver_failure(diag_str):
@@ -244,12 +235,12 @@ def is_chronic_liver_failure(diag_str):
     if not overall_exclusion_re.search(diag_str):
         if (inclusion_re.search(diag_str) and
                 not exclusion_re.search(diag_str)):
-            return True
-    return False
+            return 1
+    return 0
 
 
 def classify(diagnosis):
-    diag_str = str(diagnosis)
+    diag_str = str(diagnosis).casefold()
 
     return {
         'cancer': is_cancer(diag_str),
