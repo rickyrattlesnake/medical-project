@@ -1,6 +1,4 @@
 import csv
-import glob
-from os.path import basename, splitext
 from datetime import datetime
 from dateutil.relativedelta import relativedelta
 from savReaderWriter import SavReader
@@ -73,37 +71,37 @@ def transform_generator(uuid_map=uuids_to_filter):
 
     # create Transformation Descriptor
     transform_map = {
-        # 'demographic': {
-        #     'input_path': '{}/all_demographic.sav'.format(input_dir),
-        #     'output_path': '{}/filtered_demographic.csv'.format(outpur_dir),
-        #     'filters': [uuid_filter(uuids=uuid_map)]
-        # },
-        # 'diagnoses': {
-        #     'input_path': '{}/all_diagnoses.sav'.format(input_dir),
-        #     'output_path': '{}/filtered_diagnoses.csv'.format(outpur_dir),
-        #     'filters': [uuid_filter(uuids=uuid_map),
-        #                 date_recorded_filter(date_col=1)]
-        # },
-        # 'measures': {
-        #     'input_path': '{}/all_measures.sav'.format(input_dir),
-        #     'output_path': '{}/filtered_bmi.csv'.format(outpur_dir),
-        #     'filters': [uuid_filter(uuids=uuid_map),
-        #                 date_recorded_filter(date_col=3),
-        #                 category_filter(category_col=1, category='bmi')]
-        # },
-        # 'medical': {
-        #     'input_path': '{}/all_medical.sav'.format(input_dir),
-        #     'output_path': '{}/filtered_medical.csv'.format(outpur_dir),
-        #     'filters': [uuid_filter(uuids=uuid_map),
-        #                 date_recorded_filter(date_col=2)]
-        # },
-        # 'pathology': {
-        #     'input_path': '{}/all_pathology.sav'.format(input_dir),
-        #     'output_path': '{}/filtered_egfr.csv'.format(outpur_dir),
-        #     'filters': [uuid_filter(uuids=uuid_map),
-        #                 date_recorded_filter(date_col=1),
-        #                 category_filter(category_col=2, category='egfr')]
-        # },
+        'demographic': {
+            'input_path': '{}/all_demographic.sav'.format(input_dir),
+            'output_path': '{}/filtered_demographic.csv'.format(outpur_dir),
+            'filters': [uuid_filter(uuids=uuid_map)]
+        },
+        'diagnoses': {
+            'input_path': '{}/all_diagnoses.sav'.format(input_dir),
+            'output_path': '{}/filtered_diagnoses.csv'.format(outpur_dir),
+            'filters': [uuid_filter(uuids=uuid_map),
+                        date_recorded_filter(date_col=1)]
+        },
+        'measures': {
+            'input_path': '{}/all_measures.sav'.format(input_dir),
+            'output_path': '{}/filtered_bmi.csv'.format(outpur_dir),
+            'filters': [uuid_filter(uuids=uuid_map),
+                        date_recorded_filter(date_col=3),
+                        category_filter(category_col=1, category='bmi')]
+        },
+        'medical': {
+            'input_path': '{}/all_medical.sav'.format(input_dir),
+            'output_path': '{}/filtered_medical.csv'.format(outpur_dir),
+            'filters': [uuid_filter(uuids=uuid_map),
+                        date_recorded_filter(date_col=2)]
+        },
+        'pathology': {
+            'input_path': '{}/all_pathology.sav'.format(input_dir),
+            'output_path': '{}/filtered_egfr.csv'.format(outpur_dir),
+            'filters': [uuid_filter(uuids=uuid_map),
+                        date_recorded_filter(date_col=1),
+                        category_filter(category_col=2, category='egfr')]
+        },
         'prescriptions': {
             'input_path': '{}/all_prescriptions.sav'.format(input_dir),
             'output_path': '{}/filtered_prescriptions.csv'.format(outpur_dir),
