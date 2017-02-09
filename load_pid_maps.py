@@ -31,7 +31,7 @@ def load_pid_uuid_maps():
     return (pids, uuid_pid_map)
 
 
-def load_pid_mapped_dataset(filepath):
+def load_pid_mapped_dataset(filepath, pid_col_name='pid_hash'):
     pid_mapped_dataset = {}
 
     with open(filepath, mode='rt', errors='strict',
@@ -39,7 +39,7 @@ def load_pid_mapped_dataset(filepath):
         reader = csv.DictReader(source_file, strict=True)
 
         for row in filter(lambda row: len(row) > 0, reader):
-            pid_hash = str(row['pid_hash']).casefold()
+            pid_hash = str(row[pid_col_name]).casefold()
 
             if pid_hash in pid_mapped_dataset:
                 pid_mapped_dataset[pid_hash].append(row)
