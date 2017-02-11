@@ -1,41 +1,62 @@
 import csv
-import glob
-from os.path import basename, splitext
-from savReaderWriter import SavReader
+from diagnosis_classification import classify
 
-for inputSavPath in glob.glob('./sav/*.sav'):
-    file_root = splitext(basename(inputSavPath))[0][4:]
-    outputCsvPath = './csv/filtered_{}.csv'.format(file_root)
-    print('Filtering {} to {} ...'.format(inputSavPath, outputCsvPath))
 
-    # Reset the stats collector
-    # for uuid in uuids_to_filter.keys():
-    #     uuids_to_filter[uuid] = False
+def extract(cache):
+    paths = [
+        './extracted_csv/pid_diagnoses.csv',
+        './extracted_csv/pid_medical.csv',
+    ]
 
-    with SavReader(inputSavPath) as savData:
-        with open(outputCsvPath,
-                  mode='wt',
+    for path in paths:
+        with open(path,
+                  mode='rt',
                   errors='strict',
-                  encoding='utf8') as outFile:
-            outFilerWriter = csv.writer(outFile,
-                                        delimiter=',',
-                                        quotechar='|',
-                                        quoting=csv.QUOTE_MINIMAL)
-            header = [str(field, 'utf8').casefold()
-                      for field in savData.header]
+                  encoding='utf-8') as in_file:
+            reader = csv.DictReader(in_file, strict=True)
 
-            print(header)
-            outFilerWriter.writerow(header)
+            for row in reader:
+                cond = row['condition']
+                cache_condition(cond,
+                                classify(cond),
+                                cache)
 
-            for row in savData:
-                uuid = str(row[uuid_col], 'utf-8').casefold()
-                if uuid in uuids_to_filter:
-                    uuids_to_filter[uuid] = True
-                    parsed_row = [str(field, 'utf8')
-                                  if type(field) is bytes else field
-                                  for field in row]
-                    outFilerWriter.writerow(parsed_row)
 
-    print('Filtering statistics --- ')
-    print('Total UUIDs to Filter = {}'.format(len(uuids_to_filter)))
-    print('UUIDs filtered = {}'.format(sum(uuids_to_filter.values())))
+def cache_condition(condition, classification, cache):
+    for c, is_in in classification.items():
+        if is_in:
+            cache[c]['in'].add(condition)
+        else:
+            cache[c]['out'].add(condition)
+
+
+def write_out(cache):
+    out_file_path = './assumptions/{}_{}.txt'
+    for c, in_out in cache.items():
+        for k, cond_list in in_out.items():
+            with open(out_file_path.format(c, k),
+                      mode='wt',
+                      errors='strict',
+                      encoding='utf-8') as out_file:
+                out_file.writelines([str(x) + '\n'
+                                     for x in cond_list])
+
+
+classes = [
+    'cancer',
+    'metastatic_disease',
+    'chemotherapy',
+    'radiotherapy',
+    'dementia',
+    'chronic_heart_failure',
+    'copd',
+    'chronic_renal_failure',
+    'stage_4_or_5_renal_failure',
+    'dialysis',
+    'chronic_liver_failure',
+]
+
+classification_cache = {c: {'in': set(), 'out': set()}
+                        for c in classes}
+extract(classification_cache)
+write_out(classification_cache)

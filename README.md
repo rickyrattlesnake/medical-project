@@ -22,5 +22,9 @@ v Mapping between patient(first, last, dob) => patient_hash
 v Mapping between UUID => patient_hash
 - Merge to single file with extracted data - unique PIDs
 
+- New data set 2 years relative
+
+- Mortality Info (
+
 
 

@@ -16,7 +16,13 @@ class Merger():
                   mode='rt',
                   errors='strict',
                   encoding='utf-8') as in_file:
-            return csv.DictReader(in_file, strict=True).fieldnames
+            headers = csv.DictReader(in_file, strict=True).fieldnames
+            headers = [h for h in headers
+                       if h not in self.get_ignored_fields()]
+            return headers
+
+    def get_ignored_fields(self):
+        return []
 
     def get_pid(self, row):
         return str(row[self._pid_field_name]).casefold()
@@ -64,12 +70,13 @@ class ConditionsMerger(Merger):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
 
+    def get_ignored_fields(self):
+        return ['condition', 'diagnosis_date']
+
     def merge_row(self, existing_row, new_row):
         merged_row = {}
         merge_fn = {
             'pid_hash': lambda old, new: new,
-            'condition': lambda old, new: '',
-            'diagnosis_date': lambda old, new: '',
             'cancer': self._bool_str_or,
             'metastatic_disease': self._bool_str_or,
             'chemotherapy': self._bool_str_or,
@@ -83,10 +90,9 @@ class ConditionsMerger(Merger):
             'chronic_liver_failure': self._bool_str_or,
         }
 
-        for field_name in existing_row.keys():
+        for field_name in self._fieldnames:
             if field_name not in merge_fn:
-                raise ValueError('Field name not found in merge FN mapper - {}'
-                                 .format(field_name))
+                raise ValueError('Field Name not found in merge_fn.')
             merged_row[field_name] = \
                 merge_fn[field_name](existing_row[field_name],
                                      new_row[field_name])
