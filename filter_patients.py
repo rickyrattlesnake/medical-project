@@ -36,7 +36,7 @@ with open(input_uuid_file,
 print('[-] Total UUIDs to find = {}'.format(len(uuids_to_filter)))
 print('[-] Total Dead UUIDs to find = {}'.format(len(dead_uuid_tracker)))
 print('[-] Maximum Death Date = {}'.format(max_death_date))
-max_record_date = max_death_date - relativedelta(years=1)
+max_record_date = max_death_date - relativedelta(years=3)
 print('[-] Maximum Record Date = {}'.format(max_record_date))
 
 

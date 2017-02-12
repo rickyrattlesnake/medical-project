@@ -129,6 +129,7 @@ def is_chronic_heart_failure(diag_str):
 
     inclusion_re = word_boundary_pattern_wrap([
         'chf',
+        'ccf',
         r'heart fail\w*',
         r'cardiac fail\w*',
     ])
@@ -171,7 +172,11 @@ def is_copd(diag_str):
 def is_chronic_renal_failure(diag_str):
     inclusion_re = word_boundary_pattern_wrap([
         'kidney failure',
+        'kidney disease',
         'renal failure',
+        'renal disease',
+        'crf',
+        r'\w*dialysis\w*',
     ])
 
     exclusion_re = word_boundary_pattern_wrap([
@@ -201,7 +206,7 @@ def is_stage_4_or_5_renal_failure(diag_str):
 
 def is_dialysis(diag_str):
     inclusion_re = word_boundary_pattern_wrap([
-        r'dialysis\w*',
+        r'\w*dialysis\w*',
     ])
 
     if (is_chronic_renal_failure(diag_str) and
