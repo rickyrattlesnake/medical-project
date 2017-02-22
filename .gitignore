@@ -5,6 +5,8 @@ sav/
 assumptions/
 datasets_max_*/
 
+test*
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
