@@ -2,6 +2,7 @@ import csv
 import re
 from load_pid_maps import load_pid_uuid_maps
 from diagnosis_classification import classify as classify_diagnosis
+from dataset_utils import load_mortality_metadata, load_uuid_death_dates
 
 
 class Extractor():
@@ -36,7 +37,8 @@ class Extractor():
         return str(in_val).strip()
 
     def strip_date(self, date_time_str):
-        return str(date_time_str).split(' ')[0]
+        return (str(date_time_str).split(' ')[0]
+                if date_time_str else '')
 
     def strip_float(self, float_str):
         return str(float_str)
@@ -79,7 +81,8 @@ class Extractor():
                     if uuid not in self._uuid_pid_map:
                         raise ValueError('UUID not found in UUID_PID_MAP - {}'
                                          .format(uuid))
-                    writer.writerow(extracted_fields)
+                    if extracted_fields is not None:
+                        writer.writerow(extracted_fields)
 
 
 class BmiExtractor(Extractor):
@@ -164,24 +167,43 @@ class EgfrExtractor(Extractor):
 
 
 class VisitsExtractor(Extractor):
-    def __init__(self, *args, **kwargs):
+    def __init__(self,
+                 dead_uuids,
+                 uuid_death_dates,
+                 filter_dead,
+                 *args,
+                 **kwargs):
+        self._dead_uuids = dead_uuids
+        self._filter_dead = filter_dead
+        self._uuid_death_dates = uuid_death_dates
         out_fields = [
             'pid_hash',
             'visit_date',
-            'nonvisit',
-            'cancelled',
+            'is_dead',
+            'death_date',
         ]
         super().__init__(out_fields=out_fields,
                          *args,
                          **kwargs)
 
+    def _is_dead(self, row):
+        return self.get_uuid(row) in self._dead_uuids
+
+    def _get_death_date(self, row):
+        return self._uuid_death_dates[self.get_uuid(row)]
+
     def extract_fields(self, row):
-        return {
+        is_dead = self._is_dead(row)
+        if self._filter_dead != is_dead:
+            return None
+
+        result = {
             'pid_hash': self.get_pid(row),
             'visit_date': self.strip_date(row['visitdate']),
-            'nonvisit': self.strip_bool_int(row['nonvisit']),
-            'cancelled': self.strip_floor_int(row['cancelled']),
         }
+        if is_dead:
+            result['death_date'] = self.strip_date(self._get_death_date(row))
+        return result
 
 
 class SnapExtractor(Extractor):
@@ -237,25 +259,39 @@ class MortalityExtractor(Extractor):
 
 
 class PrescriptionExtractor(Extractor):
-    def __init__(self, *args, **kwargs):
+    def __init__(self, dead_uuids, uuid_death_dates, *args, **kwargs):
+        self._dead_uuids = dead_uuids
+        self._uuid_death_dates = uuid_death_dates
         out_fields = [
             'pid_hash',
-            'reason',
-            'trade_name',
             'ther_class',
             'script_date',
+            'is_opioid',
+            'is_dead',
+            'death_date',
         ]
         super().__init__(out_fields=out_fields,
                          *args,
                          **kwargs)
 
+    def _is_dead(self, row):
+        return int(self.get_uuid(row) in self._dead_uuids)
+
+    def _get_death_date(self, row):
+        return self._uuid_death_dates[self.get_uuid(row)]
+
+    def _is_opioid(self, drug_class):
+        return int(str(drug_class).strip().casefold() in
+                   ['na', 'nac', 'nan'])
+
     def extract_fields(self, row):
         return {
             'pid_hash': self.get_pid(row),
-            'reason': self.strip_str(row['reason']),
-            'trade_name': self.strip_str(row['trade_name']),
             'ther_class': self.strip_str(row['therclass']),
             'script_date': self.strip_date(row['script_date']),
+            'is_opioid': self._is_opioid(row['therclass']),
+            'is_dead': self._is_dead(row),
+            'death_date': self.strip_date(self._get_death_date(row))
         }
 
 
@@ -325,43 +361,62 @@ class DiagnosesExtractor(Extractor):
 
 if __name__ == '__main__':
     pids, uuid_pid_map = load_pid_uuid_maps()
-    extractor_pool = []
-    extractor_pool.extend([
-        BmiExtractor(
-            in_path='./filtered_csv/filtered_bmi.csv',
-            out_path='./extracted_csv/pid_bmi.csv',
-            uuid_pid_map=uuid_pid_map),
-        DemographicExtractor(
-            in_path='./filtered_csv/filtered_demographic.csv',
-            out_path='./extracted_csv/pid_demographic.csv',
-            uuid_pid_map=uuid_pid_map),
-        EgfrExtractor(
-            in_path='./filtered_csv/filtered_egfr.csv',
-            out_path='./extracted_csv/pid_egfr.csv',
-            uuid_pid_map=uuid_pid_map),
+    mort_metadata = load_mortality_metadata(
+        filepath='./csv/data_mortality_orig.csv'
+    )
+    uuid_death_dates = load_uuid_death_dates(
+        filepath='./csv/data_mortality_orig.csv'
+    )
+
+    extractor_pool = [
+        # BmiExtractor(
+        #     in_path='./filtered_csv/filtered_bmi.csv',
+        #     out_path='./extracted_csv/pid_bmi.csv',
+        #     uuid_pid_map=uuid_pid_map),
+        # DemographicExtractor(
+        #     in_path='./filtered_csv/filtered_demographic.csv',
+        #     out_path='./extracted_csv/pid_demographic.csv',
+        #     uuid_pid_map=uuid_pid_map),
+        # EgfrExtractor(
+        #     in_path='./filtered_csv/filtered_egfr.csv',
+        #     out_path='./extracted_csv/pid_egfr.csv',
+        #     uuid_pid_map=uuid_pid_map),
         VisitsExtractor(
             in_path='./filtered_csv/filtered_visits.csv',
-            out_path='./extracted_csv/pid_visits.csv',
-            uuid_pid_map=uuid_pid_map),
-        SnapExtractor(
-            in_path='./filtered_csv/filtered_snap.csv',
-            out_path='./extracted_csv/pid_snap.csv',
-            uuid_pid_map=uuid_pid_map),
-        MortalityExtractor(
-            in_path='./csv/data_mortality_orig.csv',
-            out_path='./extracted_csv/pid_mortality.csv',
-            uuid_pid_map=uuid_pid_map),
-        PrescriptionExtractor(
-            in_path='./filtered_csv/filtered_prescriptions.csv',
-            out_path='./extracted_csv/pid_prescriptions.csv',
-            uuid_pid_map=uuid_pid_map),
-        MedicalExtractor(
-            in_path='./filtered_csv/filtered_medical.csv',
-            out_path='./extracted_csv/pid_medical.csv',
-            uuid_pid_map=uuid_pid_map),
-        DiagnosesExtractor(
-            in_path='./filtered_csv/filtered_diagnoses.csv',
-            out_path='./extracted_csv/pid_diagnoses.csv',
-            uuid_pid_map=uuid_pid_map),
-    ])
+            out_path='./extracted_csv/pid_live_visits.csv',
+            dead_uuids=mort_metadata['dead_uuids'],
+            uuid_death_dates=uuid_death_dates,
+            uuid_pid_map=uuid_pid_map,
+            filter_dead=False),
+        VisitsExtractor(
+            in_path='./filtered_csv/filtered_visits.csv',
+            out_path='./extracted_csv/pid_dead_visits.csv',
+            dead_uuids=mort_metadata['dead_uuids'],
+            uuid_death_dates=uuid_death_dates,
+            uuid_pid_map=uuid_pid_map,
+            filter_dead=True),
+
+        # SnapExtractor(
+        #     in_path='./filtered_csv/filtered_snap.csv',
+        #     out_path='./extracted_csv/pid_snap.csv',
+        #     uuid_pid_map=uuid_pid_map),
+        # MortalityExtractor(
+        #     in_path='./csv/data_mortality_orig.csv',
+        #     out_path='./extracted_csv/pid_mortality.csv',
+        #     uuid_pid_map=uuid_pid_map),
+        # PrescriptionExtractor(
+        #     in_path='./filtered_csv/filtered_prescriptions.csv',
+        #     out_path='./extracted_csv/pid_prescriptions.csv',
+        #     dead_uuids=mort_metadata['dead_uuids'],
+        #     uuid_death_dates=uuid_death_dates,
+        #     uuid_pid_map=uuid_pid_map),x
+        # MedicalExtractor(
+        #     in_path='./filtered_csv/filtered_medical.csv',
+        #     out_path='./extracted_csv/pid_medical.csv',
+        #     uuid_pid_map=uuid_pid_map),
+        # DiagnosesExtractor(
+        #     in_path='./filtered_csv/filtered_diagnoses.csv',
+        #     out_path='./extracted_csv/pid_diagnoses.csv',
+        #     uuid_pid_map=uuid_pid_map),
+    ]
     list(map(lambda ex: ex.extract(), extractor_pool))
