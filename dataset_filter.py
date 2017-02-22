@@ -174,14 +174,14 @@ if __name__ == '__main__':
         .addFilter(['cancelled'], bool_false_filter)
 
     transformer_collection = [
-        # demoTransformer,
-        # diagTransformer,
-        # measuresTransformer,
-        # medicalTransformer,
-        # pathologyTransformer,
+        demoTransformer,
+        diagTransformer,
+        measuresTransformer,
+        medicalTransformer,
+        pathologyTransformer,
         # prescriptionsTransformer,
         # snapTransformer,
-        visitsTransformer,
+        # visitsTransformer,
     ]
 
     print('[-] Starting to filter datasets.')

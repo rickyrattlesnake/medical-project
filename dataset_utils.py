@@ -9,7 +9,7 @@ def load_mortality_metadata(filepath,
                             death_status_fieldname='DECEASED_STATUS',
                             death_date_fieldname='DEATH_DATE'):
 
-    uuid_death_dates = _load_uuid_death_dates(filepath)
+    uuid_death_dates = load_uuid_death_dates(filepath)
     max_death_date = max(uuid_death_dates.values(),
                          key=lambda d: datetime(1, 1, 1)
                          if d is None else d)
@@ -28,10 +28,10 @@ def load_mortality_metadata(filepath,
     }
 
 
-def _load_uuid_death_dates(filepath,
-                           uuid_fieldname='PATIENT_UID',
-                           death_status_fieldname='DECEASED_STATUS',
-                           death_date_fieldname='DEATH_DATE'):
+def load_uuid_death_dates(filepath,
+                          uuid_fieldname='PATIENT_UID',
+                          death_status_fieldname='DECEASED_STATUS',
+                          death_date_fieldname='DEATH_DATE'):
     uuid_death_dates = {}
     with open(filepath,
               mode='rt',
@@ -85,7 +85,7 @@ class UuidTracker():
         dead_found = sum(int(v) for v in self._dead_uuids_tracker.values())
         all_found = sum(int(v) for v in self._all_uuids_tracker.values())
         print('[*] ' + preamble)
-        print('[*] Input row count = {}'.format(self._out_row_count))
+        print('[*] Input row count = {}'.format(self._in_row_count))
         print('[*] Output row count = {}'.format(self._out_row_count))
         print('[*] All UUIDs found = {}'.format(all_found))
         print('[*] Dead UUIDs found = {}'.format(dead_found))

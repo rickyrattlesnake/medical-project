@@ -369,54 +369,53 @@ if __name__ == '__main__':
     )
 
     extractor_pool = [
-        # BmiExtractor(
-        #     in_path='./filtered_csv/filtered_bmi.csv',
-        #     out_path='./extracted_csv/pid_bmi.csv',
-        #     uuid_pid_map=uuid_pid_map),
-        # DemographicExtractor(
-        #     in_path='./filtered_csv/filtered_demographic.csv',
-        #     out_path='./extracted_csv/pid_demographic.csv',
-        #     uuid_pid_map=uuid_pid_map),
-        # EgfrExtractor(
-        #     in_path='./filtered_csv/filtered_egfr.csv',
-        #     out_path='./extracted_csv/pid_egfr.csv',
-        #     uuid_pid_map=uuid_pid_map),
-        VisitsExtractor(
-            in_path='./filtered_csv/filtered_visits.csv',
-            out_path='./extracted_csv/pid_live_visits.csv',
-            dead_uuids=mort_metadata['dead_uuids'],
-            uuid_death_dates=uuid_death_dates,
-            uuid_pid_map=uuid_pid_map,
-            filter_dead=False),
-        VisitsExtractor(
-            in_path='./filtered_csv/filtered_visits.csv',
-            out_path='./extracted_csv/pid_dead_visits.csv',
-            dead_uuids=mort_metadata['dead_uuids'],
-            uuid_death_dates=uuid_death_dates,
-            uuid_pid_map=uuid_pid_map,
-            filter_dead=True),
-
+        BmiExtractor(
+            in_path='./filtered_csv/filtered_bmi.csv',
+            out_path='./extracted_csv/pid_bmi.csv',
+            uuid_pid_map=uuid_pid_map),
+        DemographicExtractor(
+            in_path='./filtered_csv/filtered_demographic.csv',
+            out_path='./extracted_csv/pid_demographic.csv',
+            uuid_pid_map=uuid_pid_map),
+        EgfrExtractor(
+            in_path='./filtered_csv/filtered_egfr.csv',
+            out_path='./extracted_csv/pid_egfr.csv',
+            uuid_pid_map=uuid_pid_map),
+        # VisitsExtractor(
+        #     in_path='./filtered_csv/filtered_visits.csv',
+        #     out_path='./extracted_csv/pid_live_visits.csv',
+        #     dead_uuids=mort_metadata['dead_uuids'],
+        #     uuid_death_dates=uuid_death_dates,
+        #     uuid_pid_map=uuid_pid_map,
+        #     filter_dead=False),
+        # VisitsExtractor(
+        #     in_path='./filtered_csv/filtered_visits.csv',
+        #     out_path='./extracted_csv/pid_dead_visits.csv',
+        #     dead_uuids=mort_metadata['dead_uuids'],
+        #     uuid_death_dates=uuid_death_dates,
+        #     uuid_pid_map=uuid_pid_map,
+        #     filter_dead=True),
         # SnapExtractor(
         #     in_path='./filtered_csv/filtered_snap.csv',
         #     out_path='./extracted_csv/pid_snap.csv',
         #     uuid_pid_map=uuid_pid_map),
-        # MortalityExtractor(
-        #     in_path='./csv/data_mortality_orig.csv',
-        #     out_path='./extracted_csv/pid_mortality.csv',
-        #     uuid_pid_map=uuid_pid_map),
+        MortalityExtractor(
+            in_path='./csv/data_mortality_orig.csv',
+            out_path='./extracted_csv/pid_mortality.csv',
+            uuid_pid_map=uuid_pid_map),
         # PrescriptionExtractor(
         #     in_path='./filtered_csv/filtered_prescriptions.csv',
         #     out_path='./extracted_csv/pid_prescriptions.csv',
         #     dead_uuids=mort_metadata['dead_uuids'],
         #     uuid_death_dates=uuid_death_dates,
-        #     uuid_pid_map=uuid_pid_map),x
-        # MedicalExtractor(
-        #     in_path='./filtered_csv/filtered_medical.csv',
-        #     out_path='./extracted_csv/pid_medical.csv',
         #     uuid_pid_map=uuid_pid_map),
-        # DiagnosesExtractor(
-        #     in_path='./filtered_csv/filtered_diagnoses.csv',
-        #     out_path='./extracted_csv/pid_diagnoses.csv',
-        #     uuid_pid_map=uuid_pid_map),
+        MedicalExtractor(
+            in_path='./filtered_csv/filtered_medical.csv',
+            out_path='./extracted_csv/pid_medical.csv',
+            uuid_pid_map=uuid_pid_map),
+        DiagnosesExtractor(
+            in_path='./filtered_csv/filtered_diagnoses.csv',
+            out_path='./extracted_csv/pid_diagnoses.csv',
+            uuid_pid_map=uuid_pid_map),
     ]
     list(map(lambda ex: ex.extract(), extractor_pool))
